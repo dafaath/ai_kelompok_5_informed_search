@@ -11,4 +11,9 @@ Project for completing IPB University Artificial Intelligence Courses. Writing a
 5. Andra Setiyo Wicaksono (G6410081)
 
 ### How to run
-coming soon
+1. Install Python and PIP
+2. `pip install -r requirements.txt`
+3. To run the main file `python informed_search_impl.py` 
+
+### Disclaimer
+This project use Python AIMA from https://github.com/aimacode/aima-python as a framework, we only wrote `informed_search_impl.py` file
