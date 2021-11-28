@@ -5,3 +5,5 @@
 !.gitignore
 !informed_search_impl.py
 !.README.md
+!KRL_STATION_COORDINATE.json
+!KRL_STATION_GRAPH.json

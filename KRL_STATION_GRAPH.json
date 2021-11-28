@@ -1,0 +1,64 @@
+{
+  "Bogor": {
+    "Citayam": 17.046
+  },
+  "Citayam": {
+    "Bogor": 17.046,
+    "Nambo": 16.237,
+    "Manggarai": 27.878
+  },
+  "Nambo": {
+    "Citayam": 16.237
+  },
+  "Manggarai": {
+    "Citayam": 27.878,
+    "Jatinegara": 2.652,
+    "JakartaKota": 9.888,
+    "TanahAbang": 6.026
+  },
+  "Jatinegara": {
+    "Manggarai": 2.652,
+    "Bekasi": 14.802,
+    "Rajawali": 8.942
+  },
+  "Bekasi": {
+    "Jatinegara": 14.802
+  },
+  "TanahAbang": {
+    "Manggarai": 6.026,
+    "RangkasBitung": 69.578,
+    "Duri": 3.632
+  },
+  "RangkasBitung": {
+    "TanahAbang": 69.578
+  },
+  "JakartaKota": {
+    "Manggarai": 9.888,
+    "KampungBandan": 1.364
+  },
+  "KampungBandan": {
+    "JakartaKota": 1.364,
+    "Rajawali": 1.444,
+    "Ancol": 2.185,
+    "Duri": 5.332
+  },
+  "Rajawali": {
+    "KampungBandan": 1.444,
+    "Jatinegara": 8.942
+  },
+  "Duri": {
+    "KampungBandan": 5.332,
+    "TanahAbang": 3.632,
+    "Tangerang": 19.297
+  },
+  "Tangerang": {
+    "Duri": 19.297
+  },
+  "Ancol": {
+    "KampungBandan": 2.185,
+    "TanjungPriok": 4.566
+  },
+  "TanjungPriok": {
+    "Ancol": 4.566
+  }
+}
