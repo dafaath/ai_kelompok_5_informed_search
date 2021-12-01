@@ -1,5 +1,5 @@
 import json
-from search import Graph, GraphProblem, UndirectedGraph, astar_search, best_first_graph_search
+from search import Graph, GraphProblem, UndirectedGraph, astar_search, best_first_graph_search, greedy_best_first_graph_search
 
 
 StationName = ["Bogor",
@@ -34,6 +34,12 @@ def do_greedy_search(initial: str, goal: str, undirectedGraph: Graph):
         raise TypeError("initial harus merupakan salah satu nama stasiun")
     elif goal not in StationName:
         raise TypeError("goal harus merupakan salah satu nama stasiun")
+    
+    krl_station_problem = GraphProblem(initial, goal, undirectedGraph)
+    print(f"Menyelesaikan problem Greedy Search dari {initial} ke {goal}, langkah-langkah:")
+    for i, node in enumerate(greedy_best_first_graph_search(krl_station_problem, krl_station_problem.h).path(), 1):
+        print(i, node.state)
+
 
 
 def do_astar_search(initial: str, goal: str, undirectedGraph: Graph):
@@ -53,7 +59,12 @@ def main():
     krl_station_coordinates_data, krl_station_graph_data = open_file_data()
     krl_station_undirected_graph = UndirectedGraph(krl_station_graph_data)
     krl_station_undirected_graph.location = krl_station_coordinates_data
-    do_astar_search("Bogor", "Ancol", krl_station_undirected_graph)
+    do_astar_search("Bogor", "TanjungPriok", krl_station_undirected_graph)
+    do_greedy_search("Bogor", "TanjungPriok", krl_station_undirected_graph)
+    do_astar_search("RangkasBitung", "Bekasi", krl_station_undirected_graph)
+    do_greedy_search("RangkasBitung", "Bekasi", krl_station_undirected_graph)
+    do_astar_search("Nambo", "Tangerang", krl_station_undirected_graph)
+    do_greedy_search("Nambo", "Tangerang", krl_station_undirected_graph)
 
 
 if __name__ == "__main__":
