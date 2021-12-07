@@ -82,6 +82,31 @@ def compare_astar_and_greedy(test_cases: list, undirected_graph: Graph, coordina
         test.update_cost(astar_cost, greedy_cost)
 
 
+def check_different_cost():
+    """Mencari apakah ada perbedaan dari hasil greedy search dan astar search untuk setiap stasiun yang ada"""
+    coordinates_data, graph_data = open_file_data()
+    undirected_graph = UndirectedGraph(graph_data)
+    undirected_graph.location = coordinates_data
+    test_cases = []
+    for initial in TestCase.StationName:
+        for goal in TestCase.StationName:
+            if(initial == goal):
+                pass
+            else:
+                test_cases.append(TestCase(initial, goal))
+    is_there_difference = False
+    for test in test_cases:
+        astar_cost = do_search("astar", test.initial, test.goal,
+                               undirected_graph, coordinates_data, graph_data, verbose=False)
+        greedy_cost = do_search("greedy", test.initial, test.goal,
+                                undirected_graph, coordinates_data, graph_data, verbose=False)
+        test.update_cost(astar_cost, greedy_cost)
+        if(astar_cost != greedy_cost):
+            is_there_difference = True
+            print(test.initial, test.goal, astar_cost, greedy_cost)
+    print(f"Is there any difference? {is_there_difference}")
+
+
 def main():
     coordinates_data, graph_data = open_file_data()
     undirected_graph = UndirectedGraph(graph_data)
