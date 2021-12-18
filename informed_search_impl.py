@@ -87,6 +87,8 @@ def check_different_cost():
     coordinates_data, graph_data = open_file_data()
     undirected_graph = UndirectedGraph(graph_data)
     undirected_graph.location = coordinates_data
+
+    # Menambahkan test case untuk semua kemungkinan stasiun
     test_cases = []
     for initial in TestCase.StationName:
         for goal in TestCase.StationName:
@@ -94,7 +96,9 @@ def check_different_cost():
                 pass
             else:
                 test_cases.append(TestCase(initial, goal))
+
     is_there_difference = False
+    sum_test = 0
     for test in test_cases:
         astar_cost = do_search("astar", test.initial, test.goal,
                                undirected_graph, coordinates_data, graph_data, verbose=False)
@@ -104,6 +108,8 @@ def check_different_cost():
         if(astar_cost != greedy_cost):
             is_there_difference = True
             print(test.initial, test.goal, astar_cost, greedy_cost)
+        sum_test += 1
+    print(f"Testing {sum_test}/{len(test_cases)} cases")
     print(f"Is there any difference? {is_there_difference}")
 
 
@@ -111,6 +117,8 @@ def main():
     coordinates_data, graph_data = open_file_data()
     undirected_graph = UndirectedGraph(graph_data)
     undirected_graph.location = coordinates_data
+
+    # Initialize train path to test
     test_cases = []
     test_cases.append(TestCase("Bogor", "TanjungPriok"))
     test_cases.append(TestCase("RangkasBitung", "Bekasi"))
@@ -122,8 +130,10 @@ def main():
     test_cases.append(TestCase("Citayam", "Duri"))
     test_cases.append(TestCase("Bogor", "Tangerang"))
     test_cases.append(TestCase("JakartaKota", "Tangerang"))
+
     compare_astar_and_greedy(test_cases, undirected_graph, coordinates_data, graph_data)
 
 
 if __name__ == "__main__":
-    main()
+    # main()
+    check_different_cost()
