@@ -1,5 +1,7 @@
 import json
 import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
 from os import error
 from search import Graph, GraphProblem, UndirectedGraph, astar_search, best_first_graph_search, greedy_best_first_graph_search
 
@@ -111,20 +113,45 @@ def check_different_cost():
             else:
                 test_cases.append(TestCase(initial, goal))
 
-    is_there_difference = False
     sum_test = 0
+    sum_difference = 0
+    sum_astar_best = 0
+    sum_greedy_best = 0
+    sum_astar = np.empty(shape=[0, len(test_cases)])
+    sum_greedy = np.empty(shape=[0, len(test_cases)])
     for test in test_cases:
-        astar_cost = do_search("astar", test.initial, test.goal,
-                               undirected_graph, coordinates_data, graph_data)
-        greedy_cost = do_search("greedy", test.initial, test.goal,
-                                undirected_graph, coordinates_data, graph_data)
+        astar_cost, astar_path = do_search("astar", test.initial, test.goal,
+                                           undirected_graph, coordinates_data, graph_data)
+        greedy_cost, greedy_path = do_search("greedy", test.initial, test.goal,
+                                             undirected_graph, coordinates_data, graph_data)
+        sum_greedy = np.append(sum_greedy, greedy_cost)
+        sum_astar = np.append(sum_astar, astar_cost)
         test.update_cost(astar_cost, greedy_cost)
-        if(astar_cost != greedy_cost):
-            is_there_difference = True
-            print(test.initial, test.goal, astar_cost, greedy_cost)
+        test.update_path(astar_path, greedy_path)
+        if(test.astar_cost != test.greedy_cost):
+            if(test.astar_cost < test.greedy_cost):
+                sum_astar_best += 1
+            elif(test.astar_cost > test.greedy_cost):
+                sum_greedy_best += 1
+            sum_difference += 1
         sum_test += 1
-    print(f"Testing {sum_test}/{len(test_cases)} cases")
-    print(f"Is there any difference? {is_there_difference}")
+
+    print(f"Melakukan test pada {sum_test}/{len(test_cases)} test")
+    print(f"Ada {sum_difference} skenario jalur yang berbeda")
+    print(f"Dari {sum_difference} skenario tersebut:")
+    print(f"> {sum_astar_best} kali Astar lebih baik daripada Greedy")
+    print(f"> {sum_greedy_best} kali Greedy lebih baik daripada Astar")
+    test_cases_dict = list(map(lambda x: vars(x), test_cases))
+    df = pd.DataFrame.from_dict(test_cases_dict)
+    print(df)
+    print(df[["astar_cost", "greedy_cost"]].describe())
+    plt.scatter(df.index, df.astar_cost, label='Astar Cost', color='r')
+    plt.scatter(df.index, df.greedy_cost, label='Greedy Cost', color='b')
+    plt.title('Perbandingan Jarak Astar dan Greedy')
+    plt.xlabel('Skenario Test ke-n')
+    plt.ylabel('Jarak Ditempuh')
+    plt.legend()
+    plt.show()
 
 
 def main():
@@ -184,6 +211,5 @@ def crate_test_case_data():
 
 
 if __name__ == "__main__":
-    main()
-    # check_different_cost()
-    # crate_test_case_data()
+    # main()
+    check_different_cost()
