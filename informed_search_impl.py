@@ -2,6 +2,8 @@ import json
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import datetime
+from IPython.display import display
 from os import error
 from search import Graph, GraphProblem, UndirectedGraph, astar_search, best_first_graph_search, greedy_best_first_graph_search
 
@@ -11,6 +13,8 @@ class TestCase():
     goal: str
     astar_cost: float
     greedy_cost: float
+    astar_computing_time: float
+    greedy_computing_time: float
     astar_path: list
     greedy_path: list
     StationName = ["Bogor",
@@ -45,6 +49,10 @@ class TestCase():
         self.astar_path = astar_path
         self.greedy_path = greedy_path
 
+    def update_computing_time(self, astar_computing_time, greedy_computing_time):
+        self.astar_computing_time = astar_computing_time
+        self.greedy_computing_time = greedy_computing_time
+
 
 def open_file_data():
     # Opening data from json files
@@ -57,6 +65,7 @@ def open_file_data():
 
 def do_search(search_type: str, initial: str, goal: str, undirected_graph: Graph, coordinates_data, graph_data):
     krl_station_problem = GraphProblem(initial, goal, undirected_graph)
+    start_time = datetime.datetime.now()
 
     # Validasi
     if(search_type == "astar"):
@@ -75,28 +84,37 @@ def do_search(search_type: str, initial: str, goal: str, undirected_graph: Graph
         else:  # Mengambil graph data dari file dan menghitung cost setiap state yang dilewati
             cost += graph_data[node_state_before][node.state]
         node_state_before = node.state  # Menyimpan node yang sebelumnya (i-1)
-    return cost, path
+    end_time = datetime.datetime.now()
+    time_diff = end_time - start_time
+    return cost, path, time_diff.total_seconds()
 
 
 def compare_astar_and_greedy(test_cases: list, undirected_graph: Graph, coordinates_data, graph_data):
     for i, test in enumerate(test_cases, 1):
         print(f"Melakukan perbandingan dari {test.initial} ke {test.goal} : ", end="")
-        astar_cost, astar_path = do_search("astar", test.initial, test.goal,
-                                           undirected_graph, coordinates_data, graph_data)
-        greedy_cost, greedy_path = do_search("greedy", test.initial, test.goal,
-                                             undirected_graph, coordinates_data, graph_data)
+        astar_cost, astar_path, astar_computing_time = do_search("astar", test.initial, test.goal,
+                                                                 undirected_graph, coordinates_data, graph_data)
+        greedy_cost, greedy_path, greedy_computing_time = do_search("greedy", test.initial, test.goal,
+                                                                    undirected_graph, coordinates_data, graph_data)
         test.update_cost(astar_cost, greedy_cost)
         test.update_path(astar_path, greedy_path)
+        test.update_computing_time(astar_computing_time, greedy_computing_time)
         if astar_cost != greedy_cost:
             print(f"Ada perbedaan di jalur {test.initial} menuju {test.goal}")
-            print(f"A* search {test.astar_cost}")
+            print(f"A* search cost = {test.astar_cost} computing time={test.astar_computing_time}")
             for i, path, in enumerate(test.astar_path, 1):
                 print(i, path.state)
-            print(f"Greedy Search {test.greedy_cost}")
+            print(
+                f"Greedy Search cost = {test.greedy_cost} computing time={test.greedy_computing_time}")
             for i, path in enumerate(test.greedy_path, 1):
                 print(i, path.state)
         else:
             print("Tidak ada perbedaan")
+    test_cases_dict = list(map(lambda x: vars(x), test_cases))
+    df = pd.DataFrame.from_dict(test_cases_dict)
+    df = df.drop(columns=["astar_path", "greedy_path"])
+    display(df)
+    print(df.to_json(orient='records'))
 
 
 def check_different_cost():
@@ -120,14 +138,15 @@ def check_different_cost():
     sum_astar = np.empty(shape=[0, len(test_cases)])
     sum_greedy = np.empty(shape=[0, len(test_cases)])
     for test in test_cases:
-        astar_cost, astar_path = do_search("astar", test.initial, test.goal,
-                                           undirected_graph, coordinates_data, graph_data)
-        greedy_cost, greedy_path = do_search("greedy", test.initial, test.goal,
-                                             undirected_graph, coordinates_data, graph_data)
+        astar_cost, astar_path, astar_computing_time = do_search("astar", test.initial, test.goal,
+                                                                 undirected_graph, coordinates_data, graph_data)
+        greedy_cost, greedy_path, greedy_computing_time = do_search("greedy", test.initial, test.goal,
+                                                                    undirected_graph, coordinates_data, graph_data)
         sum_greedy = np.append(sum_greedy, greedy_cost)
         sum_astar = np.append(sum_astar, astar_cost)
         test.update_cost(astar_cost, greedy_cost)
         test.update_path(astar_path, greedy_path)
+        test.update_computing_time(astar_computing_time, greedy_computing_time)
         if(test.astar_cost != test.greedy_cost):
             if(test.astar_cost < test.greedy_cost):
                 sum_astar_best += 1
@@ -143,13 +162,22 @@ def check_different_cost():
     print(f"> {sum_greedy_best} kali Greedy lebih baik daripada Astar")
     test_cases_dict = list(map(lambda x: vars(x), test_cases))
     df = pd.DataFrame.from_dict(test_cases_dict)
-    print(df)
-    print(df[["astar_cost", "greedy_cost"]].describe())
-    plt.scatter(df.index, df.astar_cost, label='Astar Cost', color='r')
-    plt.scatter(df.index, df.greedy_cost, label='Greedy Cost', color='b')
+    df_describe = df[["astar_cost", "greedy_cost",
+                      "astar_computing_time", "greedy_computing_time"]].describe()
+    print(df_describe.to_json(orient='records'))
+    plt.scatter(df.index, df.astar_cost, label='Jarak Astar', color='r')
+    plt.scatter(df.index, df.greedy_cost, label='Jarak Greedy', color='b')
     plt.title('Perbandingan Jarak Astar dan Greedy')
     plt.xlabel('Skenario Test ke-n')
     plt.ylabel('Jarak Ditempuh')
+    plt.legend()
+    plt.show()
+
+    plt.scatter(df.index, df.astar_computing_time, label='Waktu Komputasi Astar', color='r')
+    plt.scatter(df.index, df.greedy_computing_time, label='Waktu Komputasi Greedy', color='b')
+    plt.title('Perbandingan Waktu Komputasi Astar dan Greedy')
+    plt.xlabel('Skenario Test ke-n')
+    plt.ylabel('Waktu Komputasi')
     plt.legend()
     plt.show()
 
